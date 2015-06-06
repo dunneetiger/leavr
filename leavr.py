@@ -59,7 +59,6 @@ if __name__ == '__main__':
                 elif field == "dn":
                     m = re.search(dict_fields[field], line)
                     current_uid = m.group(1)
-                    emplo
                     print "=> reset the uid to : " + current_uid
                 else:
                     m = re.search(dict_fields[field], line)
