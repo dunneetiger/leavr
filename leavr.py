@@ -6,19 +6,20 @@ import re
 class Employee:
     # number of employees
     num_employee = 0
-     
+
     def __init__(self):
         self.fname   = {'type' : 'alpha'}
-        self.lname   = {'type' : 'alpha'}
         self.uid     = {'type' : 'alpha'}
         self.jDate   = {'type' : 'alpha'}
         self.lDate   = {'type' : 'alpha'}
         self.country = {'type' : 'alpha'}
         self.pict    = {'type' : 'alpha'}
         self.team    = {}
- 
         self.num_employee += 1
- 
+    
+    def get_num_employees(self):
+        return self.num_employee
+
  
 def get_line (filename):
     with open(filename, 'r') as f:
@@ -28,7 +29,7 @@ def get_line (filename):
  
 if __name__ == '__main__':
  
-    filename = "temp_leavr.txt"
+    filename = "../temp_leavr.txt"
     # sys.stdout = open(filename, 'w')
     # print subprocess.Popen("ldapsearch -b \"DC=ORBISUK,DC=COM\" -h ldap -x gecos uid x-joiningDate x-leavingDate x-orbisTeam c -S x-joiningDate", shell=True, stdout=subprocess.PIPE).stdout.read()
     # sys.stdout = sys.__stdout__
@@ -41,11 +42,11 @@ if __name__ == '__main__':
     dict_fields['uid']     = '^uid: ([a-zA-Z0-9_]+)*$'
     dict_fields['team']    = '^x-orbisTeam: cn=([a-zA-Z0-9_]+),.*$'
     dict_fields['country'] = '^c: ([a-zA-Z0-9_]+)*$'
-    dict_fields['jDate']   = '^x-joiningDate: ([0-2][0-9][0-9][0-9]-[0-1][0-9]-[0-3][0-9])$'
+    dict_fields['jDate']   = '^x-joiningDate: ([0-2][0-9][0-9][0-9]-[0-1][0-9]-[0-9]+)$'
     dict_fields['lDate']   = '^x-leavingDate: ([0-2][0-9][0-9][0-9]-[0-1][0-9]-[0-3][0-9])$'
-    dict_fields['gecos']   = '^gecos: ([a-zA-Z0-9_ ]+),.*$'
+    dict_fields['fname']   = '^gecos: ([a-zA-Z0-9_ ]+),.*$'
      
-    dict_employee = {}
+    all_employees = {}
      
     current_uid   = ""
  
@@ -60,7 +61,20 @@ if __name__ == '__main__':
                     m = re.search(dict_fields[field], line)
                     current_uid = m.group(1)
                     print "=> reset the uid to : " + current_uid
+                    employee = Employee()
+                    employee.uid = current_uid
+                    employee.lDate = '-'
+                    employee.fname = 'Not Correct'
+                    all_employees[current_uid] = employee
                 else:
                     m = re.search(dict_fields[field], line)
-                    print "|===>value " + m.group(1)
-                    pass
+                    if current_uid != "" :
+                        setattr(all_employees[current_uid], field, m.group(1))
+                        print "|===>value " + m.group(1)
+ 
+
+    for emp in all_employees.keys():
+        print "verif for : " + emp
+        print "fname :" + all_employees[emp].fname
+        print "jdate : " + all_employees[emp].jDate
+        print all_employees[emp].get_num_employees()
