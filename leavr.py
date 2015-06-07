@@ -57,7 +57,7 @@ if __name__ == '__main__':
     regexp['country'] = '^c: ([a-zA-Z0-9_-]+)*$'
     regexp['jDate']   = '^x-joiningDate: ([0-2][0-9][0-9][0-9]-[0-1][0-9]-[0-9]+)$'
     regexp['lDate']   = '^x-leavingDate: ([0-2][0-9][0-9][0-9]-[0-1][0-9]-[0-3][0-9])$'
-    regexp['fname']   = '^gecos: ([a-zA-Z0-9_ \-\']+), ([a-zA-Z0-9_ \-\&\+\'\.\/\(\)\;]+)$'
+    regexp['fname']   = '^gecos: ([a-zA-Z0-9_ \-\']+), ([a-zA-Z0-9_ \-\&\+\'\.\/\(\)\;\,]+)$'
      
     all_employees = {}
      
