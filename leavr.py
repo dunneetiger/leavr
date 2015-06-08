@@ -2,7 +2,8 @@
 import subprocess
 import sys
 import re
- 
+import operator
+
 class Employee:
     # number of employees
     num_employee = 0
@@ -43,9 +44,9 @@ def verif (emp):
 if __name__ == '__main__':
  
     filename = "../temp_leavr.txt"
-    # sys.stdout = open(filename, 'w')
-    # print subprocess.Popen("ldapsearch -b \"DC=ORBISUK,DC=COM\" -h ldap -x gecos uid x-joiningDate x-leavingDate x-orbisTeam c -S x-joiningDate", shell=True, stdout=subprocess.PIPE).stdout.read()
-    # sys.stdout = sys.__stdout__
+    sys.stdout = open(filename, 'w')
+    print subprocess.Popen("ldapsearch -b \"DC=ORBISUK,DC=COM\" -h ldap -x objectClass=orbisPerson gecos uid x-joiningDate x-leavingDate x-orbisTeam c -S x-joiningDate", shell=True, stdout=subprocess.PIPE).stdout.read()
+    sys.stdout = sys.__stdout__
  
  
     regexp = {}
@@ -89,4 +90,4 @@ if __name__ == '__main__':
                             setattr(all_employees[current_uid], field, m.group(1))
                         # print "|===>value " + m.group(1)
  
-    verif(all_employees)
+    # verif(all_employees)
