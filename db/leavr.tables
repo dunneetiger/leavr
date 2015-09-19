@@ -1,0 +1,15 @@
+create table IF NOT EXISTS tEmployee (
+	id integer primary key autoincrement,
+	title text not null,
+	fname text not null,
+    uid   text not null,
+	jDate   datetime,
+	lDate   datetime, 
+	country text not null,
+	pict    text not null,
+	team    text not null
+);
+
+create table IF NOT EXISTS tControl (
+	lastUpd  datetime
+);
