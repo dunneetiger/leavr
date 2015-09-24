@@ -228,9 +228,8 @@ def unload_from_sqlite(sql_cur, employees_dict):
 			employee.team    = row[7].split(", ")
 
 		employees_dict[employee.uid] = employee
-
-
-
+	
+	return employees_dict
 
 def update_dict(sql_cur, old_dict, new_dict):
 
@@ -256,13 +255,11 @@ def update_dict(sql_cur, old_dict, new_dict):
 			insert_db(sql_cur, new_dict[key])
 			print_info(new_dict, key)
 
-
-if __name__ == '__main__':
+def create_or_update():
 
 	filename = "temp_leavr.txt"
 	sqlite_file = "db/leavr.db"
 
-	employees_old = {}
 	employees_new = {}
 	
 
@@ -275,16 +272,17 @@ if __name__ == '__main__':
 		# check if this is the first time the program is run
 		cur.execute('select * from tControl;')
 		row = cur.fetchone()
-		if row == None:
-			employees_old = set_employee_dict(filename, employees_old)
+		# if row == None:
+		#	employees_ldap = set_employee_dict(filename, employees_old)
 			# if it is, then initialise
-			load_to_sqlite(cur, employees_old)
-		else:
-			employees_new = set_employee_dict(filename, employees_new)
-			employees_old = {}
-			unload_from_sqlite(cur, employees_old)
-			update_dict(cur, employees_old, employees_new)
-			print "Last Updated: {0}".format(row[0])
-		
+		#	load_to_sqlite(cur, employees_ldap)
+		#else:
+		employees_new = set_employee_dict(filename, employees_new)
+		employees_old = {}
+		unload_from_sqlite(cur, employees_old)
+		update_dict(cur, employees_old, employees_new)
+		# print "Last Updated: {0}".format(row[0])
 	# sort_by_field(employees_old)
 
+if __name__ == '__main__':
+	create_or_update()
