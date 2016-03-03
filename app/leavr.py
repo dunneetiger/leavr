@@ -257,7 +257,7 @@ def update_dict(sql_cur, old_dict, new_dict):
                         else:
 				# Update entry in DB
 				update_db(sql_cur, new_dict[key])
-				sql_exec = "Update tControl set lastUpd = datetime('now'); "
+                                sql_exec = "Update tControl set lastUpd = datetime('now'); "
 				sql_cur.execute(sql_exec)
 				print_info(new_dict, key, changed_fields(old_dict, new_dict, key))
 

@@ -1,7 +1,4 @@
 {% extends "base.html" %}
 {% block content %}
-    {% for employee in employees %}
-    <div><p {% if employee.active %} style="color:green" {% endif %}>{{ employee.fname }}, {{ employee.title }}</p></div>
-    {% endfor %}
+{{ line_chart | safe }}	
 {% endblock %}
-
