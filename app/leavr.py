@@ -18,6 +18,9 @@ class Employee:
 		self.pict  	  = None
 		self.team    = []
 
+        def __dir__(self):
+            return ['fname', 'title', 'uid', 'jDate', 'lDate', 'country', 'team']
+
 	def __str__(self):
 		return str(self.__dict__)
 
@@ -60,18 +63,20 @@ def print_info (all_employees, employee, fields=[]):
 		If no field is given, all fields will be printed
 	"""
 	
-	print "verif for : " + employee
+        for attr in dir(all_employees[employee]):
+            if attr in fields:
+                field_name = "* " + attr
+            else:
+                field_name = attr
 
-	if len(fields) == 0:
-		print "fname : " + all_employees[employee].fname
-		print "jdate : " + all_employees[employee].jDate
-		print "lDate : " + all_employees[employee].lDate
-		print "country : " + all_employees[employee].country
-		print "team : " + ", ".join(all_employees[employee].team)
-		print "title: " + all_employees[employee].title
-	else:
-		for field in fields:
-			print field + " : " + getattr(all_employees[employee], field)
+            if attr == "team": 
+                if len(all_employees[employee].team) == 0:
+                        team = "None"
+                else:
+                        team = ", ".join(all_employees[employee].team)
+                print field_name + " : " + team
+            else:
+               print field_name + " : " + getattr(all_employees[employee], attr)
  
 	print "--"
 
@@ -185,7 +190,7 @@ def update_db (sql_cur, employee_data):
 		team = ", ".join(employee_data.team)
 	lDate = employee_data.lDate
 	if lDate == "-" :
-		sql_exec = "Update tEmployee set title = \"{0}\", fname = \"{1}\", uid = \"{2}\", jDate = \"{3}\", country = \"{4}\", pict = \"{5}\", team = \"{6}\" where uid = \"{2}\";".format(employee_data.title, employee_data.fname, employee_data.uid, employee_data.jDate, employee_data.country, employee_data.pict, team)
+		sql_exec = "Update tEmployee set title = \"{0}\", fname = \"{1}\", uid = \"{2}\", jDate = \"{3}\", country = \"{4}\", pict = \"{5}\", team = \"{6}\"  where uid = \"{2}\";".format(employee_data.title, employee_data.fname, employee_data.uid, employee_data.jDate, employee_data.country, employee_data.pict, team)
 	else:
 		sql_exec = "Update tEmployee set title = \"{0}\", fname = \"{1}\", uid = \"{2}\", jDate = \"{3}\", lDate = \"{4}\", country = \"{5}\", pict = \"{6}\", team = \"{7}\"  where uid = \"{2}\";".format(employee_data.title, employee_data.fname, employee_data.uid, employee_data.jDate, lDate, employee_data.country, employee_data.pict, team)
 
@@ -216,7 +221,7 @@ def unload_from_sqlite(sql_cur, employees_dict):
 		employee.uid   = row[2]
 		employee.jDate = row[3]
 		lDate = row[4]
-		if lDate == None:
+		if lDate == None or lDate == "":
 			employee.lDate = "-"
 		else:
 			employee.lDate = row[4]
@@ -225,27 +230,36 @@ def unload_from_sqlite(sql_cur, employees_dict):
 		if row[7] == "None":
 			employee.team = []
 		else:
-			employee.team    = row[7].split(", ")
+			employee.team  = row[7].split(", ")
 
 		employees_dict[employee.uid] = employee
 	
 	return employees_dict
+
+def changed_fields(old_dict, new_dict, employee):
+    new_details  = new_dict[employee]
+    old_details  = old_dict[employee]
+
+    list_fields = []
+    for attr in dir(new_details):
+        if getattr(new_details, attr) != getattr(old_details, attr):
+            print "field: {0},  old value: {1},  new value: {2}".format(attr, getattr(new_details, attr), getattr(old_details, attr))
+            list_fields.append(attr)
+    return list_fields
 
 def update_dict(sql_cur, old_dict, new_dict):
 
 	for key in new_dict.keys():
 		if key in old_dict.keys():
 			# Check for modification (always assume new is correct)
-			
-			if  new_dict[key] == old_dict[key]:
+			if new_dict[key] == old_dict[key]:
 				pass
-			else:
-				print "Updating {0}".format(key)
+                        else:
 				# Update entry in DB
 				update_db(sql_cur, new_dict[key])
 				sql_exec = "Update tControl set lastUpd = datetime('now'); "
 				sql_cur.execute(sql_exec)
-				print_info(new_dict, key)
+				print_info(new_dict, key, changed_fields(old_dict, new_dict, key))
 
 		else:
 			# Check for new entries in new (we dont delete so there wouldnt be a need to check for removal)
@@ -254,6 +268,11 @@ def update_dict(sql_cur, old_dict, new_dict):
 			sql_cur.execute(sql_exec)
 			insert_db(sql_cur, new_dict[key])
 			print_info(new_dict, key)
+
+def current_stat(sql_cur):
+    sql_exec = "select country, count(*) from tEmployee where lDate is null group by country order by count(*);"
+    for row in sql_cur.execute(sql_exec):
+        print row
 
 def create_or_update():
 
@@ -278,10 +297,11 @@ def create_or_update():
 		#	load_to_sqlite(cur, employees_ldap)
 		#else:
 		employees_new = set_employee_dict(filename, employees_new)
-		employees_old = {}
+                employees_old = {}
 		unload_from_sqlite(cur, employees_old)
-		update_dict(cur, employees_old, employees_new)
+                update_dict(cur, employees_old, employees_new)
 		# print "Last Updated: {0}".format(row[0])
+                current_stat(cur)
 	# sort_by_field(employees_old)
 
 if __name__ == '__main__':
