@@ -1,0 +1,14 @@
+<html>
+  <head>
+    {% if title %}
+    <title>{{ title }} - Marauder's Map</title>
+    {% else %}
+    <title>Welcome to Marauder's Map</title>
+    {% endif %}
+  </head>
+  <body>
+    <div>here you go: <a href="/index">Home</a></div>
+    <hr>
+    {% block content %}{% endblock %}
+  </body>
+</html>
