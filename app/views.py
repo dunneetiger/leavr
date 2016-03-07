@@ -18,15 +18,24 @@ def load_sqlite_to_df(sql="select * from tEmployee order by jDate"):
 def graphs():
     x = load_sqlite_to_df()
     x = x[pd.notnull(x['jDate'])]
+    
+    # Prettier graph
+    pd.options.display.mpl_style = 'default'     
+
+    # Slice of only the columns we need
     df = x[['jDate','country','id']]
+
     df = df.groupby(['jDate','country']).count().groupby(level=[1], as_index=False).cumsum()
     df = df.reset_index()
+    
     fig = plt.figure(figsize=(12, 14))
-    res = df.loc[df['country'] == "in"]
-    res = res[['jDate', 'id']]
-    res.set_index('jDate')
+    
+    # res = df.loc[df['country'] == "in"]
+    # res = res[['jDate', 'id']]
+    # res = res.set_index('jDate')
+    res = df.pivot('jDate', 'country', 'id')
     fig, ax = plt.subplots()
-    res['id'].plot(ax=ax ,figsize=(12, 10), title='test')
+    res.plot(ax=ax ,figsize=(12, 10), title='test')
     figfile = BytesIO()
     plt.savefig(figfile, format='png')
     # plt.xticks(res['jDate'], res.index.values )
